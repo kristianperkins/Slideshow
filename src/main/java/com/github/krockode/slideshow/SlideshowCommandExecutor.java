@@ -27,11 +27,11 @@ public class SlideshowCommandExecutor implements CommandExecutor {
         if ((sender instanceof Player) && (args.length > 0)) {
             Player player = (Player) sender;
             sender.sendMessage("Player location: " + player.getLocation());
-            
+
             if ("add".equals(args[0])) {
             	savedLocations.add(player.getLocation());
             } else if ("run".equals(args[0])) {
-            	SlideshowRunnable task = new SlideshowRunnable(player, savedLocations);
+            	SlideshowRunner task = new SlideshowRunner(player, savedLocations);
                 taskId = sender.getServer().getScheduler().scheduleAsyncRepeatingTask(plugin, task, 20, ONE_MINUTE_PERIOD / 6);
             } else if ("stop".equals(args[0])) {
             	sender.getServer().getScheduler().cancelTask(taskId);
@@ -41,20 +41,23 @@ public class SlideshowCommandExecutor implements CommandExecutor {
 		return false;
 	}
 
-    class SlideshowRunnable implements Runnable {
+    private static class SlideshowRunner implements Runnable {
 
     	private Player player;
     	private List<Location> locations;
     	private int index;
 
-    	public SlideshowRunnable(Player player, List<Location> locations) {
+    	public SlideshowRunner(Player player, List<Location> locations) {
     		this.player = player;
     		this.locations = locations;
 		}
 
 		public void run() {
-			player.teleport(locations.get(index++ % locations.size()));
+			if (player.isOnline() & player.getAllowFlight()) {
+				player.setFlying(true);
+				player.teleport(locations.get(index++ % locations.size()));
+			}
 		}
-    	
+
     }
 }
