@@ -76,6 +76,8 @@ public class SlideshowCommandExecutor implements CommandExecutor {
 //                    slides.set("locations", locations);
                 }
                 plugin.saveConfig();
+            } else if ("list".equals(args[0])) {
+                player.sendMessage(ChatColor.GREEN + slides.toString());
             }
             return true;
         }
