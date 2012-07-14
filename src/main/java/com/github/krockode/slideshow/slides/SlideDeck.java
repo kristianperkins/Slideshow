@@ -9,7 +9,6 @@ import java.util.logging.Logger;
 import org.bukkit.Location;
 import org.bukkit.Server;
 import org.bukkit.World;
-import org.bukkit.configuration.ConfigurationSection;
 
 public class SlideDeck implements Iterable<Location> {
 
@@ -34,8 +33,12 @@ public class SlideDeck implements Iterable<Location> {
         return locations.size();
     }
 
-    public void save(ConfigurationSection config) {
-
+    public List<String> toStringList() {
+        ArrayList<String> list = new ArrayList<String>();
+        for (Location loc : locations) {
+            list.add(toString(loc));
+        }
+        return list;
     }
 
     private static String toString(Location loc) {
@@ -43,8 +46,8 @@ public class SlideDeck implements Iterable<Location> {
         buf.append(loc.getX()).append(",");
         buf.append(loc.getY()).append(",");
         buf.append(loc.getZ()).append(",");
-        buf.append(loc.getPitch()).append(",");
         buf.append(loc.getYaw()).append(",");
+        buf.append(loc.getPitch()).append(",");
         buf.append(loc.getWorld().getName());
         return buf.toString();
     }
@@ -53,7 +56,7 @@ public class SlideDeck implements Iterable<Location> {
         String[] l = locString.split(",");
         World world = server.getWorld(l[5]);
         return new Location(world, Double.valueOf(l[0]), Double.valueOf(l[1]), Double.valueOf(l[2]),
-                Float.valueOf(l[4]), Float.valueOf(l[3]));
+                Float.valueOf(l[3]), Float.valueOf(l[4]));
 
     }
     public static Map<String, SlideDeck> loadFromConfiguration() {

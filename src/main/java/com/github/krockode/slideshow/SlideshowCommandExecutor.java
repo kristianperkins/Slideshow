@@ -2,6 +2,7 @@ package com.github.krockode.slideshow;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -60,24 +61,20 @@ public class SlideshowCommandExecutor implements CommandExecutor {
                     player.sendMessage(ChatColor.RED + "slideshow there: " + decks.get(args[1]));
                 }
             } else if ("save".equals(args[0])) {
-
                 Configuration config = plugin.getConfig();
                 if (config.contains(args[1])) {
                     sender.sendMessage(ChatColor.RED + args[1] + " already exists.");
+                } else if (editingSlides == null) {
+                    sender.sendMessage(ChatColor.RED + args[1] + " no slideshow being edited.");
                 } else {
-//                    ConfigurationSection slides = config.createSection(args[1]);
-//                    List<String> locations = new ArrayList<String>();
-//                    for (Location loc: savedLocations) {
-//                        StringBuilder buf = new StringBuilder();
-//                        buf.append(new Vector(loc.getX(), loc.getY(), loc.getZ()));
-//                        buf.append(":");
-//                        buf.append(loc.getPitch()).append(":").append(loc.getYaw());
-//                        buf.append(":").append(loc.getWorld());
-//                        locations.add(buf.toString());
-//                    }
-//                    slides.set("locations", locations);
+                    List<String> deckString = editingSlides.toStringList();
+                    ConfigurationSection slidesConfig = plugin.getConfig().getConfigurationSection("slides");
+                    ConfigurationSection deckConfig = slidesConfig.createSection(args[1]);
+                    deckConfig.set("locations", deckString);
+                    decks.put(args[1], editingSlides);
+                    editingSlides = null;
+                    plugin.saveConfig();
                 }
-                plugin.saveConfig();
             } else if ("list".equals(args[0])) {
                 player.sendMessage(ChatColor.GREEN + decks.toString());
             }
