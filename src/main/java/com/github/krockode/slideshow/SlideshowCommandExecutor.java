@@ -1,7 +1,9 @@
 package com.github.krockode.slideshow;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -12,19 +14,28 @@ import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.util.Vector;
+
+import com.github.krockode.slideshow.slides.Slides;
 
 public class SlideshowCommandExecutor implements CommandExecutor {
+
+    private static final Logger log = Logger.getLogger("Minecraft");
 
     // 20 server ticks per second
     private static final int ONE_SECOND_PERIOD = 20;
     private static final int ONE_MINUTE_PERIOD = ONE_SECOND_PERIOD * 60;
     private Plugin plugin;
-    private List<Location> savedLocations = new ArrayList<Location>();
-    private int taskId;
+    private Map<String, Slides> slides = new HashMap<String, Slides>();
+    private Slides editingSlides;
 
     SlideshowCommandExecutor(Plugin plugin) {
         this.plugin = plugin;
+        ConfigurationSection config = plugin.getConfig().getConfigurationSection("slides");
+        for (String slideName : config.getKeys(false)) {
+            Slides slide = new Slides(config.getStringList(slideName), plugin.getServer());
+            slides.put(slideName, slide);
+            log.info("added slideshow " + slideName + "with " + slides.size() + " slides");
+        }
     }
 
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
@@ -32,30 +43,32 @@ public class SlideshowCommandExecutor implements CommandExecutor {
             Player player = (Player) sender;
             sender.sendMessage("Player location: " + player.getLocation());
 
-            if ("add".equals(args[0])) {
-                savedLocations.add(player.getLocation());
+            if ("create".equals(args[0])) {
+                if (editingSlides != null) {
+                    player.sendMessage(ChatColor.RED + "There is already a slideshow being edited");
+                }
+            } else if ("add".equals(args[0])) {
+                editingSlides.add(player.getLocation());
             } else if ("run".equals(args[0])) {
-                SlideshowRunner task = new SlideshowRunner(player, savedLocations);
-                taskId = sender.getServer().getScheduler().scheduleAsyncRepeatingTask(plugin, task, ONE_SECOND_PERIOD, ONE_MINUTE_PERIOD / 6);
-            } else if ("stop".equals(args[0])) {
-                sender.getServer().getScheduler().cancelTask(taskId);
+                SlideshowRunner task = new SlideshowRunner(player, slides.get(args[1]).iterator());
+                sender.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, task, ONE_SECOND_PERIOD);
             } else if ("save".equals(args[0])) {
 
                 Configuration config = plugin.getConfig();
                 if (config.contains(args[1])) {
                     sender.sendMessage(ChatColor.RED + args[1] + " already exists.");
                 } else {
-                    ConfigurationSection slides = config.createSection(args[1]);
-                    List<String> locations = new ArrayList<String>();
-                    for (Location loc: savedLocations) {
-                        StringBuilder buf = new StringBuilder();
-                        buf.append(new Vector(loc.getX(), loc.getY(), loc.getZ()));
-                        buf.append(":");
-                        buf.append(loc.getPitch()).append(":").append(loc.getYaw());
-                        buf.append(":").append(loc.getWorld());
-                        locations.add(buf.toString());
-                    }
-                    slides.set("locations", locations);
+//                    ConfigurationSection slides = config.createSection(args[1]);
+//                    List<String> locations = new ArrayList<String>();
+//                    for (Location loc: savedLocations) {
+//                        StringBuilder buf = new StringBuilder();
+//                        buf.append(new Vector(loc.getX(), loc.getY(), loc.getZ()));
+//                        buf.append(":");
+//                        buf.append(loc.getPitch()).append(":").append(loc.getYaw());
+//                        buf.append(":").append(loc.getWorld());
+//                        locations.add(buf.toString());
+//                    }
+//                    slides.set("locations", locations);
                 }
                 plugin.saveConfig();
             }
@@ -64,22 +77,36 @@ public class SlideshowCommandExecutor implements CommandExecutor {
         return false;
     }
 
-    private static class SlideshowRunner implements Runnable {
+    private class SlideshowRunner implements Runnable {
 
         private Player player;
-        private List<Location> locations;
+        private Iterator<Location> slides;
         private int index;
-
-        public SlideshowRunner(Player player, List<Location> locations) {
+        private Location previous;
+        public SlideshowRunner(Player player, Iterator<Location> slides) {
             this.player = player;
-            this.locations = locations;
+            this.slides = slides;
+            this.previous = player.getLocation();
         }
 
         public void run() {
-            if (player.isOnline() & player.getAllowFlight()) {
+            player.sendMessage("isOnline: " + player.isOnline());
+            player.sendMessage("flight: " + player.getAllowFlight());
+            if (player.isOnline() && player.getAllowFlight() && !hasMoved(player)) {
                 player.setFlying(true);
-                player.teleport(locations.get(index++ % locations.size()));
+                slides.next();
+                player.teleport(previous);
+                previous = player.getLocation();
+                player.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, this, ONE_MINUTE_PERIOD / 6);
+            } else {
+                player.sendMessage(ChatColor.YELLOW + "Slideshow cancelled.");
+                return;
             }
+        }
+
+        private boolean hasMoved(Player player) {
+            System.out.println("distance: " + previous.distance(player.getLocation()));
+            return previous.distance(player.getLocation()) > 1;
         }
     }
 }
