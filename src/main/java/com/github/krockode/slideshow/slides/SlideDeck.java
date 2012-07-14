@@ -4,19 +4,25 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import org.bukkit.Location;
 import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 
-public class Slides implements Iterable<Location> {
+public class SlideDeck implements Iterable<Location> {
+
+    private static final Logger log = Logger.getLogger("Minecraft");
 
     private List<Location> locations = new ArrayList<Location>();
 
-    public Slides(List<String> locationStrings, Server server) {
+    public SlideDeck(List<String> locationStrings, Server server) {
+        log.info("the locations: " + locationStrings);
         for (String locString : locationStrings) {
-            locations.add(toLocation(locString, server));
+            Location location = toLocation(locString, server);
+            locations.add(location);
+            log.info("adding location: " + location);
         }
     }
 
@@ -37,9 +43,9 @@ public class Slides implements Iterable<Location> {
         buf.append(loc.getX()).append(",");
         buf.append(loc.getY()).append(",");
         buf.append(loc.getZ()).append(",");
-        buf.append(",");
-        buf.append(loc.getPitch()).append(",").append(loc.getYaw());
-        buf.append(",").append(loc.getWorld().getName());
+        buf.append(loc.getPitch()).append(",");
+        buf.append(loc.getYaw()).append(",");
+        buf.append(loc.getWorld().getName());
         return buf.toString();
     }
 
@@ -50,28 +56,24 @@ public class Slides implements Iterable<Location> {
                 Float.valueOf(l[3]), Float.valueOf(l[4]));
 
     }
-    public static Map<String, Slides> loadFromConfiguration() {
+    public static Map<String, SlideDeck> loadFromConfiguration() {
         return null;
     }
 
     public Iterator<Location> iterator() {
-        return new SlideshowIterator();
+        return new SlideDeckIterator();
     }
 
-    private class SlideshowIterator implements Iterable<Location>, Iterator<Location> {
+    private class SlideDeckIterator implements Iterator<Location> {
 
         private int index;
-
-        public Iterator<Location> iterator() {
-            return this;
-        }
 
         public boolean hasNext() {
             return true;
         }
 
         public Location next() {
-            return locations.get(index++ % locations.size());
+            return locations.get(index++ % locations.size()).clone();
         }
 
         public void remove() {
