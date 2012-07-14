@@ -3,12 +3,16 @@ package com.github.krockode.slideshow;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.Configuration;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.util.Vector;
 
 public class SlideshowCommandExecutor implements CommandExecutor {
 
@@ -32,9 +36,28 @@ public class SlideshowCommandExecutor implements CommandExecutor {
                 savedLocations.add(player.getLocation());
             } else if ("run".equals(args[0])) {
                 SlideshowRunner task = new SlideshowRunner(player, savedLocations);
-                taskId = sender.getServer().getScheduler().scheduleAsyncRepeatingTask(plugin, task, 20, ONE_MINUTE_PERIOD / 6);
+                taskId = sender.getServer().getScheduler().scheduleAsyncRepeatingTask(plugin, task, ONE_SECOND_PERIOD, ONE_MINUTE_PERIOD / 6);
             } else if ("stop".equals(args[0])) {
                 sender.getServer().getScheduler().cancelTask(taskId);
+            } else if ("save".equals(args[0])) {
+
+                Configuration config = plugin.getConfig();
+                if (config.contains(args[1])) {
+                    sender.sendMessage(ChatColor.RED + args[1] + " already exists.");
+                } else {
+                    ConfigurationSection slides = config.createSection(args[1]);
+                    List<String> locations = new ArrayList<String>();
+                    for (Location loc: savedLocations) {
+                        StringBuilder buf = new StringBuilder();
+                        buf.append(new Vector(loc.getX(), loc.getY(), loc.getZ()));
+                        buf.append(":");
+                        buf.append(loc.getPitch()).append(":").append(loc.getYaw());
+                        buf.append(":").append(loc.getWorld());
+                        locations.add(buf.toString());
+                    }
+                    slides.set("locations", locations);
+                }
+                plugin.saveConfig();
             }
             return true;
         }
