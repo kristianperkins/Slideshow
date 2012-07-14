@@ -15,7 +15,7 @@ public class Slideshow extends JavaPlugin {
 
     public void onEnable() {
         PluginDescriptionFile pdfFile = this.getDescription();
-        getCommand("slideshow").setExecutor(new SlideshowCommandExecutor(this));
+        getCommand("slides").setExecutor(new SlideshowCommandExecutor(this));
         log.info(pdfFile.getName() + " version " + pdfFile.getVersion() + " is enabled!");
     }
 }

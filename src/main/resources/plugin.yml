@@ -2,22 +2,22 @@ name: Slideshow
 main: com.github.krockode.slideshow.Slideshow
 version: ${project.version}
 author: krockode
-description: Slideshow. 
+description: Slideshow.
 commands:
-   slideshow:
+   slides:
       description: |
                 Create slideshows of your world
-      usage: /slideshow [create|add|save|run] [slideshowname]
-# /slideshow create [slideshowname] 
+      usage: /slides [create|add|save|run] [slideshowname]
+# /slides create [slideshowname]
 #   creates a new slideshow
-# /slideshow add
+# /slides add
 #   adds the current location to the slideshow
 #   (must have already run create)
-# /slideshow save
+# /slides save
 #   saves the current slideshow
-# /slideshow run [slideshowname] [period]
+# /slides run [slideshowname] [period]
 #   runs the previously saved slideshow named slideshowname
-# /slideshow stop
+# /slides stop
 #   stop the currently running slideshow
-# /slideshow next
+# /slides next
 #   debug option to cycle through slideshow manually
