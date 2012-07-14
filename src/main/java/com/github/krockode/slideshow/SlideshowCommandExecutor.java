@@ -50,8 +50,13 @@ public class SlideshowCommandExecutor implements CommandExecutor {
             } else if ("add".equals(args[0])) {
                 editingSlides.add(player.getLocation());
             } else if ("run".equals(args[0])) {
-                SlideshowRunner task = new SlideshowRunner(player, slides.get(args[1]).iterator());
-                sender.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, task, ONE_SECOND_PERIOD);
+                Slides slide = slides.get(args[1]);
+                if (slide != null || slide.size() == 0) {
+                    player.sendMessage(ChatColor.RED + "Cannot run slideshow " + args[1]);
+                } else {
+                    SlideshowRunner task = new SlideshowRunner(player, slide.iterator());
+                    sender.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, task, ONE_SECOND_PERIOD);
+                }
             } else if ("save".equals(args[0])) {
 
                 Configuration config = plugin.getConfig();
