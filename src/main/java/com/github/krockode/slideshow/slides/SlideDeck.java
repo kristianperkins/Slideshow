@@ -53,7 +53,7 @@ public class SlideDeck implements Iterable<Location> {
         String[] l = locString.split(",");
         World world = server.getWorld(l[5]);
         return new Location(world, Double.valueOf(l[0]), Double.valueOf(l[1]), Double.valueOf(l[2]),
-                Float.valueOf(l[3]), Float.valueOf(l[4]));
+                Float.valueOf(l[4]), Float.valueOf(l[3]));
 
     }
     public static Map<String, SlideDeck> loadFromConfiguration() {
