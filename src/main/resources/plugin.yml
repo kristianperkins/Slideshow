@@ -4,12 +4,25 @@ version: ${project.version}
 author: krockode
 description: Slideshow.
 commands:
-   slides:
-      description: |
-                Create slideshows of your world
-      usage: /slides [create|add|save|run] [slideshowname]
-      permission: slideshow.basic
-      permission-message: You don't have <permission>
+  slides:
+    description: |
+              Create slideshows of your world
+    usage: |
+        /slides [create|add]
+        /slides save [slideshowname]
+        /slides [slideshowname]         runs a slideshow
+        /slides                         lists existing slideshows
+    permission: slideshow.basic
+    permission-message: You don't have <permission>
+
+permissions:
+  slideshow.*:
+    default: op
+    children:
+      slideshow.create: true
+      slideshow.run: true
+      slideshow.list: true
+
 # /slides create [slideshowname]
 #   creates a new slideshow
 # /slides add
