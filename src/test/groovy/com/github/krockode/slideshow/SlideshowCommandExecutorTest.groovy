@@ -7,6 +7,7 @@ import org.bukkit.Server
 import org.bukkit.entity.Player
 import org.bukkit.command.CommandSender
 import org.bukkit.plugin.Plugin
+import org.bukkit.scheduler.BukkitScheduler
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.configuration.file.FileConfiguration
 
@@ -26,14 +27,40 @@ class SlideshowCommandExecutorTest extends Specification {
         cmdExecutor = new SlideshowCommandExecutor(plugin)
     }
 
-    def "when I execute the slideshow list command (i.e. default command)" () {
+    def "when I execute the slideshow default list command as any type of sender" () {
         given:
-            def player = Mock(Player)
+            def sender = Mock(CommandSender)
             String[] args = []
         when:
-            def result = cmdExecutor.onCommand(player, null, "", args)
+            def result = cmdExecutor.onCommand(sender, null, "", args)
         then:
             result == true
-            1 * player.sendMessage("Slideshows (1): ${ChatColor.GREEN}test")
+            1 * sender.sendMessage("Slideshows (1): ${ChatColor.GREEN}test")
+    }
+
+    def "when I run an unknown slideshow" () {
+        given:
+            def sender = Mock(Player)
+            String[] args = ["nottest"]
+        when:
+            def result = cmdExecutor.onCommand(sender, null, "", args)
+        then:
+            result == true
+            1 * sender.sendMessage("${ChatColor.RED}Cannot run slideshow ${args[0]}");
+    }
+
+    def "when I run the test slideshow" () {
+        given:
+            def sender = Mock(Player)
+            def server = Mock(Server)
+            sender.server >> server
+            def scheduler = Mock(BukkitScheduler)
+            server.scheduler >> scheduler
+            String[] args = ["test"]
+        when:
+            def result = cmdExecutor.onCommand(sender, null, "", args)
+        then:
+            result == true
+            1 * scheduler.scheduleAsyncDelayedTask(_, _, _)
     }
 }

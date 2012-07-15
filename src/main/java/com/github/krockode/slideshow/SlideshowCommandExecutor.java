@@ -95,7 +95,7 @@ public class SlideshowCommandExecutor implements CommandExecutor {
 
     private void run(Player player, String slideDeckName) {
         SlideDeck slide = decks.get(slideDeckName);
-        if (slide != null || slide.size() > 0) {
+        if (slide != null && slide.size() > 0) {
             SlideshowRunner task = new SlideshowRunner(player, slide.iterator());
             player.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, task, ONE_SECOND_PERIOD);
         } else {
