@@ -16,6 +16,14 @@ public class SlideDeck implements Iterable<Location> {
 
     private List<Location> locations = new ArrayList<Location>();
 
+    /**
+     * Creates a new empty SlideDeck
+     */
+    public SlideDeck() {}
+
+    /**
+     * Loads a SlideDeck from a list of Strings
+     */
     public SlideDeck(List<String> locationStrings, Server server) {
         log.info("the locations: " + locationStrings);
         for (String locString : locationStrings) {

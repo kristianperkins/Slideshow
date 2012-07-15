@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -48,6 +49,9 @@ public class SlideshowCommandExecutor implements CommandExecutor {
             if ("create".equals(args[0])) {
                 if (editingSlides != null) {
                     player.sendMessage(ChatColor.RED + "There is already a slideshow being edited");
+                } else {
+                    editingSlides = new SlideDeck();
+                    player.sendMessage(ChatColor.RED + "There is already a slideshow being edited");
                 }
             } else if ("add".equals(args[0])) {
                 editingSlides.add(player.getLocation());
@@ -76,7 +80,7 @@ public class SlideshowCommandExecutor implements CommandExecutor {
                     plugin.saveConfig();
                 }
             } else if ("list".equals(args[0])) {
-                player.sendMessage(ChatColor.GREEN + decks.toString());
+                player.sendMessage(ChatColor.GREEN + StringUtils.join(decks.keySet(), ChatColor.WHITE + ", " + ChatColor.GREEN));
             }
             return true;
         }
