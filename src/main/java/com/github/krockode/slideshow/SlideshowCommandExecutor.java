@@ -44,14 +44,16 @@ public class SlideshowCommandExecutor implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if ((sender instanceof Player) && (args.length > 0)) {
             Player player = (Player) sender;
-            if ("create".equals(args[0])) {
+            String type = args[0];
+            String option = args.length > 1 ? args[1] : "";
+            if ("create".equals(type)) {
                 create(player);
-            } else if ("add".equals(args[0])) {
+            } else if ("add".equals(type)) {
                add(player);
-            } else if ("save".equals(args[0])) {
-                save(player, args[1]);
-            } else if ("run".equals(args[0])) {
-                run(player, args[1]);
+            } else if ("save".equals(type)) {
+                save(player, option);
+            } else if (StringUtils.isNotBlank(type)) {
+                run(player, type);
             } else {
                 list(sender);
             }
