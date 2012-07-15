@@ -105,7 +105,7 @@ public class SlideshowCommandExecutor implements CommandExecutor {
 
     private void list(CommandSender sender) {
         sender.sendMessage("Slideshows (" + decks.size() + "): " + ChatColor.GREEN +
-                StringUtils.join(decks.keySet(), ChatColor.WHITE + ", " + ChatColor.GREEN));
+                StringUtils.join(decks.keySet(), ChatColor.RESET + ", " + ChatColor.GREEN));
     }
 
     private class SlideshowRunner implements Runnable {
