@@ -44,45 +44,66 @@ public class SlideshowCommandExecutor implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if ((sender instanceof Player) && (args.length > 0)) {
             Player player = (Player) sender;
-
             if ("create".equals(args[0])) {
-                if (editingSlides != null) {
-                    player.sendMessage(ChatColor.RED + "There is already a slideshow being edited");
-                } else {
-                    editingSlides = new SlideDeck();
-                    player.sendMessage(ChatColor.RED + "There is already a slideshow being edited");
-                }
+                create(player);
             } else if ("add".equals(args[0])) {
-                editingSlides.add(player.getLocation());
-            } else if ("run".equals(args[0])) {
-                SlideDeck slide = decks.get(args[1]);
-                if (slide != null || slide.size() > 0) {
-                    SlideshowRunner task = new SlideshowRunner(player, slide.iterator());
-                    sender.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, task, ONE_SECOND_PERIOD);
-                } else {
-                    player.sendMessage(ChatColor.RED + "Cannot run slideshow " + args[1]);
-                }
+               add(player);
             } else if ("save".equals(args[0])) {
-                Configuration config = plugin.getConfig();
-                if (config.contains(args[1])) {
-                    sender.sendMessage(ChatColor.RED + "Slideshow" + args[1] + " already exists.");
-                } else if (editingSlides == null) {
-                    sender.sendMessage(ChatColor.RED + args[1] + " no slideshow being edited.");
-                } else {
-                    List<String> deckString = editingSlides.toStringList();
-                    ConfigurationSection slidesConfig = plugin.getConfig().getConfigurationSection("slides");
-                    ConfigurationSection deckConfig = slidesConfig.createSection(args[1]);
-                    deckConfig.set("locations", deckString);
-                    decks.put(args[1], editingSlides);
-                    editingSlides = null;
-                    plugin.saveConfig();
-                }
+                save(player, args[1]);
+            } else if ("run".equals(args[0])) {
+                run(player, args[1]);
             } else {
-                player.sendMessage(ChatColor.GREEN + StringUtils.join(decks.keySet(), ChatColor.WHITE + ", " + ChatColor.GREEN));
+                list(sender);
             }
-            return true;
+        } else {
+            list(sender);
         }
-        return false;
+        return true;
+    }
+
+    private void create(Player player) {
+        if (editingSlides != null) {
+            player.sendMessage(ChatColor.RED + "There is already a slideshow being edited");
+        } else {
+            editingSlides = new SlideDeck();
+            player.sendMessage(ChatColor.YELLOW + "add your current location using /slides add");
+        }
+    }
+
+    private void add(Player player) {
+        editingSlides.add(player.getLocation());
+    }
+
+    private void save(Player player, String slideDeck) {
+        Configuration config = plugin.getConfig();
+        if (config.contains(slideDeck)) {
+            player.sendMessage(ChatColor.RED + "Slideshow" + slideDeck + " already exists.");
+        } else if (editingSlides == null) {
+            player.sendMessage(ChatColor.RED + slideDeck + " no slideshow being edited.");
+        } else {
+            List<String> deckString = editingSlides.toStringList();
+            ConfigurationSection slidesConfig = plugin.getConfig().getConfigurationSection("slides");
+            ConfigurationSection deckConfig = slidesConfig.createSection(slideDeck);
+            deckConfig.set("locations", deckString);
+            decks.put(slideDeck, editingSlides);
+            editingSlides = null;
+            plugin.saveConfig();
+        }
+    }
+
+    private void run(Player player, String slideDeck) {
+        SlideDeck slide = decks.get(slideDeck);
+        if (slide != null || slide.size() > 0) {
+            SlideshowRunner task = new SlideshowRunner(player, slide.iterator());
+            player.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, task, ONE_SECOND_PERIOD);
+        } else {
+            player.sendMessage(ChatColor.RED + "Cannot run slideshow " + slideDeck);
+        }
+    }
+
+    private void list(CommandSender sender) {
+        sender.sendMessage("Slideshows (" + decks.size() + "): " + ChatColor.GREEN +
+                StringUtils.join(decks.keySet(), ChatColor.WHITE + ", " + ChatColor.GREEN));
     }
 
     private class SlideshowRunner implements Runnable {
