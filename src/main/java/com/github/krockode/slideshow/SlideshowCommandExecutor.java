@@ -93,13 +93,13 @@ public class SlideshowCommandExecutor implements CommandExecutor {
         }
     }
 
-    private void run(Player player, String slideDeck) {
-        SlideDeck slide = decks.get(slideDeck);
+    private void run(Player player, String slideDeckName) {
+        SlideDeck slide = decks.get(slideDeckName);
         if (slide != null || slide.size() > 0) {
             SlideshowRunner task = new SlideshowRunner(player, slide.iterator());
             player.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, task, ONE_SECOND_PERIOD);
         } else {
-            player.sendMessage(ChatColor.RED + "Cannot run slideshow " + slideDeck);
+            player.sendMessage(ChatColor.RED + "Cannot run slideshow " + slideDeckName);
         }
     }
 
@@ -113,6 +113,7 @@ public class SlideshowCommandExecutor implements CommandExecutor {
         private Player player;
         private Iterator<Location> slides;
         private Location previous;
+
         public SlideshowRunner(Player player, Iterator<Location> slides) {
             this.player = player;
             this.slides = slides;

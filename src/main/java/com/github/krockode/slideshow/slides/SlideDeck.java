@@ -25,11 +25,11 @@ public class SlideDeck implements Iterable<Location> {
      * Loads a SlideDeck from a list of Strings
      */
     public SlideDeck(List<String> locationStrings, Server server) {
-        log.info("the locations: " + locationStrings);
+        log.finest("the locations: " + locationStrings);
         for (String locString : locationStrings) {
             Location location = toLocation(locString, server);
             locations.add(location);
-            log.info("adding location: " + location);
+            log.finest("adding location: " + location);
         }
     }
 
@@ -51,20 +51,20 @@ public class SlideDeck implements Iterable<Location> {
 
     private static String toString(Location loc) {
         StringBuilder buf = new StringBuilder();
+        buf.append(loc.getWorld().getName()).append(",");
         buf.append(loc.getX()).append(",");
         buf.append(loc.getY()).append(",");
         buf.append(loc.getZ()).append(",");
         buf.append(loc.getYaw()).append(",");
-        buf.append(loc.getPitch()).append(",");
-        buf.append(loc.getWorld().getName());
+        buf.append(loc.getPitch());
         return buf.toString();
     }
 
     private static Location toLocation(String locString, Server server) {
         String[] l = locString.split(",");
-        World world = server.getWorld(l[5]);
-        return new Location(world, Double.valueOf(l[0]), Double.valueOf(l[1]), Double.valueOf(l[2]),
-                Float.valueOf(l[3]), Float.valueOf(l[4]));
+        World world = server.getWorld(l[0]);
+        return new Location(world, Double.valueOf(l[1]), Double.valueOf(l[2]), Double.valueOf(l[3]),
+                Float.valueOf(l[4]), Float.valueOf(l[5]));
 
     }
     public static Map<String, SlideDeck> loadFromConfiguration() {

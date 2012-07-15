@@ -8,6 +8,8 @@ commands:
       description: |
                 Create slideshows of your world
       usage: /slides [create|add|save|run] [slideshowname]
+      permission: slideshow.basic
+      permission-message: You don't have <permission>
 # /slides create [slideshowname]
 #   creates a new slideshow
 # /slides add
