@@ -44,7 +44,6 @@ public class SlideshowCommandExecutor implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if ((sender instanceof Player) && (args.length > 0)) {
             Player player = (Player) sender;
-            sender.sendMessage("Player location: " + player.getLocation());
 
             if ("create".equals(args[0])) {
                 if (editingSlides != null) {
@@ -62,12 +61,11 @@ public class SlideshowCommandExecutor implements CommandExecutor {
                     sender.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, task, ONE_SECOND_PERIOD);
                 } else {
                     player.sendMessage(ChatColor.RED + "Cannot run slideshow " + args[1]);
-                    player.sendMessage(ChatColor.RED + "slideshow there: " + decks.get(args[1]));
                 }
             } else if ("save".equals(args[0])) {
                 Configuration config = plugin.getConfig();
                 if (config.contains(args[1])) {
-                    sender.sendMessage(ChatColor.RED + args[1] + " already exists.");
+                    sender.sendMessage(ChatColor.RED + "Slideshow" + args[1] + " already exists.");
                 } else if (editingSlides == null) {
                     sender.sendMessage(ChatColor.RED + args[1] + " no slideshow being edited.");
                 } else {
@@ -79,7 +77,7 @@ public class SlideshowCommandExecutor implements CommandExecutor {
                     editingSlides = null;
                     plugin.saveConfig();
                 }
-            } else if ("list".equals(args[0])) {
+            } else {
                 player.sendMessage(ChatColor.GREEN + StringUtils.join(decks.keySet(), ChatColor.WHITE + ", " + ChatColor.GREEN));
             }
             return true;
@@ -99,13 +97,13 @@ public class SlideshowCommandExecutor implements CommandExecutor {
         }
 
         public void run() {
-            player.sendMessage("isOnline: " + player.isOnline());
-            player.sendMessage("flight: " + player.getAllowFlight());
+            log.finest("isOnline: " + player.isOnline());
+            log.finest("flight: " + player.getAllowFlight());
             if (player.isOnline() && player.getAllowFlight() && !hasMoved(player)) {
                 player.setFlying(true);
                 Location next = slides.next();
-                log.info("player at: " + player.getLocation());
-                log.info("teleporting to: " + next);
+                log.finest("player at: " + player.getLocation());
+                log.finest("teleporting to: " + next);
                 player.teleport(next);
                 previous = player.getLocation();
                 player.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, this, ONE_MINUTE_PERIOD / 6);
@@ -116,7 +114,6 @@ public class SlideshowCommandExecutor implements CommandExecutor {
         }
 
         private boolean hasMoved(Player player) {
-            System.out.println("distance: " + previous.distance(player.getLocation()));
             return previous.distance(player.getLocation()) > 1;
         }
     }
