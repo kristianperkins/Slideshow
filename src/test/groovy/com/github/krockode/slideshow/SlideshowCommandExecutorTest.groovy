@@ -61,6 +61,6 @@ class SlideshowCommandExecutorTest extends Specification {
             def result = cmdExecutor.onCommand(sender, null, "", args)
         then:
             result == true
-            1 * scheduler.scheduleAsyncDelayedTask(_, _, _)
+            1 * scheduler.scheduleSyncDelayedTask(_, _, _)
     }
 }

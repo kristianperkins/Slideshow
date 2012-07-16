@@ -97,7 +97,9 @@ public class SlideshowCommandExecutor implements CommandExecutor {
         SlideDeck slide = decks.get(slideDeckName);
         if (slide != null && slide.size() > 0) {
             SlideshowRunner task = new SlideshowRunner(player, slide.iterator());
-            player.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, task, ONE_SECOND_PERIOD);
+            player.sendMessage(ChatColor.RED + "Starting slideshow " + slideDeckName);
+            log.info("Player " + player.getDisplayName() + " started slideshow " + slideDeckName);
+            player.getServer().getScheduler().scheduleSyncDelayedTask(plugin, task, ONE_SECOND_PERIOD);
         } else {
             player.sendMessage(ChatColor.RED + "Cannot run slideshow " + slideDeckName);
         }
@@ -130,7 +132,7 @@ public class SlideshowCommandExecutor implements CommandExecutor {
                 log.finest("teleporting to: " + next);
                 player.teleport(next);
                 previous = player.getLocation();
-                player.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, this, ONE_MINUTE_PERIOD / 6);
+                player.getServer().getScheduler().scheduleSyncDelayedTask(plugin, this, ONE_MINUTE_PERIOD / 6);
             } else {
                 player.sendMessage(ChatColor.YELLOW + "Slideshow cancelled.");
                 return;
