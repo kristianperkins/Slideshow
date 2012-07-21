@@ -13,6 +13,12 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
+    <scm>
+     <connection>scm:git:git://github.com/krockode/Slideshow.git</connection>
+     <url>scm:git:git://github.com/krockode/Slideshow.git</url>
+     <developerConnection>scm:git:git://github.com/krockode/Slideshow.git</developerConnection>
+   </scm>
+
   <repositories>
     <repository>
       <id>repobo-snap</id>
