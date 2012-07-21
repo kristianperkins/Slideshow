@@ -87,5 +87,4 @@ public class SlideDeck implements Iterable<Slide> {
             throw new UnsupportedOperationException();
         }
     }
-
 }

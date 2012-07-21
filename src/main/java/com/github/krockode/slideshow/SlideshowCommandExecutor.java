@@ -35,7 +35,7 @@ public class SlideshowCommandExecutor implements CommandExecutor {
         ConfigurationSection config = plugin.getConfig().getConfigurationSection("slides");
         for (String slideName : config.getKeys(false)) {
             ConfigurationSection slideConfig = config.getConfigurationSection(slideName);
-            SlideDeck slide = new SlideDeck(slideConfig.getMapList("locations"), plugin.getServer());
+            SlideDeck slide = new SlideDeck(slideConfig.getMapList("slides"), plugin.getServer());
             decks.put(slideName, slide);
             log.info("added slideshow " + slideName + " with " + decks.size() + "  slides");
         }
