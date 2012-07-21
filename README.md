@@ -22,15 +22,36 @@ Config
 ------
 
 slideshows are saved into `plugins/Slideshow/config.yml` directory.  Example config file which has
-4 slides in the slideshow named 'test':
+4 slides in the slideshow named 'scenic':
 
-    slides:
-      test:
-        locations:
-        - world,-273.72491573955375,85.4132691836773,290.31116882828906,35.250015,151.19955
-        - world,-299.21646853355395,77.53826918367729,247.94022984617965,31.50002,236.84967
-        - world,-293.12986180853045,97.7882691836773,251.9524968037722,90.0,277.04968
-        - world,-260.8855595022034,81.66326918377457,258.28061420357943,56.999996,234.89966
+slides:
+  scenic:
+    locations:
+    - world: world
+      x: -216.5599075500681
+      y: 83.41326918367727
+      z: 298.1087455864209
+      yaw: 257.6998
+      pitch: 45.750042
+    - world: world
+      x: -216.5599075500681
+      y: 64.0
+      z: 298.1087455864209
+      yaw: 34.949738
+      pitch: 13.350043
+    - world: world
+      x: -254.47851348303448
+      y: 58.38920272000321
+      z: 303.40247912097806
+      yaw: 64.9498
+      pitch: 15.750045
+      message: Checkout the view!
+    - world: world
+      x: -248.8414216395152
+      y: 71.0
+      z: 251.07486458903276
+      yaw: 171.44945
+      pitch: -1.6499997
 
 Each location is of the form:
 
