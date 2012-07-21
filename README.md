@@ -5,16 +5,21 @@ Bukkit plugin to create and run slideshows of your world.  Cycle through a list 
 scenic views of your world.  The player using this must be able to fly (since most viewing angles are in the sky).
 
 Usage
-=====
+-----
 
-* `slides new` - start a new slideshow
-* `slides add` - add the current location (including viewing direction) to the new slideshow
+_Player Commands_
+
+* `slides add` - add your current location (including viewing direction) to the new slideshow
 * `slides save <name>` - save the new slideshow as <name>
 * `slides list` - list all available slideshows
 * `slides <name>` - run the slideshow <name>
 
+_Console Commands_
+
+* `slides` - list all available slideshows
+
 Config
-======
+------
 
 slideshows are saved into `plugins/Slideshow/config.yml` directory.  Example config file which has
 4 slides in the slideshow named 'test':

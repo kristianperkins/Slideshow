@@ -8,7 +8,6 @@ import java.util.logging.Logger;
 
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -17,6 +16,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
+import com.github.krockode.slideshow.slides.Slide;
 import com.github.krockode.slideshow.slides.SlideDeck;
 
 public class SlideshowCommandExecutor implements CommandExecutor {
@@ -35,7 +35,7 @@ public class SlideshowCommandExecutor implements CommandExecutor {
         ConfigurationSection config = plugin.getConfig().getConfigurationSection("slides");
         for (String slideName : config.getKeys(false)) {
             ConfigurationSection slideConfig = config.getConfigurationSection(slideName);
-            SlideDeck slide = new SlideDeck(slideConfig.getStringList("locations"), plugin.getServer());
+            SlideDeck slide = new SlideDeck(slideConfig.getMapList("locations"), plugin.getServer());
             decks.put(slideName, slide);
             log.info("added slideshow " + slideName + " with " + decks.size() + "  slides");
         }
@@ -73,7 +73,12 @@ public class SlideshowCommandExecutor implements CommandExecutor {
     }
 
     private void add(Player player) {
-        editingSlides.add(player.getLocation());
+        if (editingSlides == null) {
+            editingSlides = new SlideDeck();
+            player.sendMessage(ChatColor.YELLOW + "Creating new slideshow");
+        }
+        editingSlides.add(new Slide(player.getLocation()));
+        player.sendMessage(ChatColor.YELLOW + "added current location");
     }
 
     private void save(Player player, String slideDeck) {
@@ -83,7 +88,7 @@ public class SlideshowCommandExecutor implements CommandExecutor {
         } else if (editingSlides == null) {
             player.sendMessage(ChatColor.RED + slideDeck + " no slideshow being edited.");
         } else {
-            List<String> deckString = editingSlides.toStringList();
+            List<Map<String, Object>> deckString = editingSlides.toListOfMaps();
             ConfigurationSection slidesConfig = plugin.getConfig().getConfigurationSection("slides");
             ConfigurationSection deckConfig = slidesConfig.createSection(slideDeck);
             deckConfig.set("locations", deckString);
@@ -113,13 +118,12 @@ public class SlideshowCommandExecutor implements CommandExecutor {
     private class SlideshowRunner implements Runnable {
 
         private Player player;
-        private Iterator<Location> slides;
-        private Location previous;
+        private Iterator<Slide> slides;
+        private Slide previous;
 
-        public SlideshowRunner(Player player, Iterator<Location> slides) {
+        public SlideshowRunner(Player player, Iterator<Slide> slides) {
             this.player = player;
             this.slides = slides;
-            this.previous = player.getLocation();
         }
 
         public void run() {
@@ -127,11 +131,11 @@ public class SlideshowCommandExecutor implements CommandExecutor {
             log.finest("flight: " + player.getAllowFlight());
             if (player.isOnline() && player.getAllowFlight() && !hasMoved(player)) {
                 player.setFlying(true);
-                Location next = slides.next();
+                Slide next = slides.next();
                 log.finest("player at: " + player.getLocation());
                 log.finest("teleporting to: " + next);
-                player.teleport(next);
-                previous = player.getLocation();
+                player.teleport(next.getLocation());
+                previous = next;
                 player.getServer().getScheduler().scheduleSyncDelayedTask(plugin, this, ONE_MINUTE_PERIOD / 6);
             } else {
                 player.sendMessage(ChatColor.YELLOW + "Slideshow cancelled.");
@@ -140,7 +144,7 @@ public class SlideshowCommandExecutor implements CommandExecutor {
         }
 
         private boolean hasMoved(Player player) {
-            return previous.distance(player.getLocation()) > 1;
+            return previous != null && previous.getLocation().distance(player.getLocation()) > 1;
         }
     }
 }

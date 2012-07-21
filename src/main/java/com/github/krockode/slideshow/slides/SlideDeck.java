@@ -10,11 +10,11 @@ import org.bukkit.Location;
 import org.bukkit.Server;
 import org.bukkit.World;
 
-public class SlideDeck implements Iterable<Location> {
+public class SlideDeck implements Iterable<Slide> {
 
     private static final Logger log = Logger.getLogger("Minecraft");
 
-    private List<Location> locations = new ArrayList<Location>();
+    private List<Slide> slides = new ArrayList<Slide>();
 
     /**
      * Creates a new empty SlideDeck
@@ -24,58 +24,54 @@ public class SlideDeck implements Iterable<Location> {
     /**
      * Loads a SlideDeck from a list of Strings
      */
-    public SlideDeck(List<String> locationStrings, Server server) {
-        log.finest("the locations: " + locationStrings);
-        for (String locString : locationStrings) {
-            Location location = toLocation(locString, server);
-            locations.add(location);
-            log.finest("adding location: " + location);
+    public SlideDeck(List<Map<?, ?>> deckConfig, Server server) {
+        log.finest("the locations: " + deckConfig);
+        for (Map<?, ?> config : deckConfig) {
+            Slide slide = toSlide(config, server);
+            slides.add(slide);
+            log.finest("adding slide: " + slide);
         }
     }
 
-    public void add(Location location) {
-        locations.add(location);
+    public void add(Slide slide) {
+        slides.add(slide);
     }
 
     public int size() {
-        return locations.size();
+        return slides.size();
     }
 
-    public List<String> toStringList() {
-        ArrayList<String> list = new ArrayList<String>();
-        for (Location loc : locations) {
-            list.add(toString(loc));
+    public List<Map<String, Object>> toListOfMaps() {
+        ArrayList<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+        for (Slide slide : slides) {
+            list.add(slide.toMap());
         }
         return list;
     }
 
-    private static String toString(Location loc) {
-        StringBuilder buf = new StringBuilder();
-        buf.append(loc.getWorld().getName()).append(",");
-        buf.append(loc.getX()).append(",");
-        buf.append(loc.getY()).append(",");
-        buf.append(loc.getZ()).append(",");
-        buf.append(loc.getYaw()).append(",");
-        buf.append(loc.getPitch());
-        return buf.toString();
-    }
-
-    private static Location toLocation(String locString, Server server) {
-        String[] l = locString.split(",");
-        World world = server.getWorld(l[0]);
-        return new Location(world, Double.valueOf(l[1]), Double.valueOf(l[2]), Double.valueOf(l[3]),
-                Float.valueOf(l[4]), Float.valueOf(l[5]));
-
-    }
     public static Map<String, SlideDeck> loadFromConfiguration() {
         return null;
     }
 
-    public Iterator<Location> iterator() {
+    public Iterator<Slide> iterator() {
         return new SlideDeckIterator();
     }
 
-    private class SlideDeckIterator implements Iterator<Location> {
+    private static Slide toSlide(Map<?, ?> config, Server server) {
+        World world = server.getWorld((String)config.get("world"));
+        Location loc = new Location(world, (Double)config.get("x"), (Double)config.get("y"), (Double)config.get("z"),
+                ((Double)config.get("yaw")).floatValue(), ((Double)config.get("pitch")).floatValue());
+        Slide s = new Slide(loc);
+        if (config.containsKey("message")) {
+            s.setMessage(config.get("message").toString());
+        }
+        if (config.containsKey("duration")) {
+            s.setDuration((Integer)config.get("duration"));
+        }
+        return s;
+    }
+
+    private class SlideDeckIterator implements Iterator<Slide> {
 
         private int index;
 
@@ -83,8 +79,8 @@ public class SlideDeck implements Iterable<Location> {
             return true;
         }
 
-        public Location next() {
-            return locations.get(index++ % locations.size()).clone();
+        public Slide next() {
+            return slides.get(index++ % slides.size());
         }
 
         public void remove() {

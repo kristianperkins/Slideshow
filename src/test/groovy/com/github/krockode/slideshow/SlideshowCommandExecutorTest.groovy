@@ -4,6 +4,7 @@ import spock.lang.Specification
 
 import org.bukkit.ChatColor
 import org.bukkit.Server
+import org.bukkit.World
 import org.bukkit.entity.Player
 import org.bukkit.command.CommandSender
 import org.bukkit.plugin.Plugin
@@ -21,9 +22,12 @@ class SlideshowCommandExecutorTest extends Specification {
         fileConfig.getConfigurationSection(_) >> slidesConfig
         slidesConfig.getConfigurationSection(_) >> slidesConfig
         slidesConfig.getKeys(false) >> ["test"]
-        slidesConfig.getStringList("locations") >> ["world,-250,80,25,120,40"]
+        slidesConfig.getMapList("locations") >> [[world: "world", x: -250d, y: 80d, z: 25d, yaw: 120f, pitch: 40f]]
         plugin.config >> fileConfig
         plugin.server >> Mock(Server)
+        def world = Mock(World)
+        world.name >> "Vulcan"
+        plugin.server.world >> world
         cmdExecutor = new SlideshowCommandExecutor(plugin)
     }
 
