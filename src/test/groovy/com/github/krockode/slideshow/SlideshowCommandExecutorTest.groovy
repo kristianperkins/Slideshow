@@ -22,7 +22,7 @@ class SlideshowCommandExecutorTest extends Specification {
         fileConfig.getConfigurationSection(_) >> slidesConfig
         slidesConfig.getConfigurationSection(_) >> slidesConfig
         slidesConfig.getKeys(false) >> ["test"]
-        slidesConfig.getMapList("locations") >> [[world: "world", x: -250d, y: 80d, z: 25d, yaw: 120f, pitch: 40f]]
+        slidesConfig.getMapList("locations") >> [[world: "world", x: -250d, y: 80d, z: 25d, yaw: 120d, pitch: 40d]]
         plugin.config >> fileConfig
         plugin.server >> Mock(Server)
         def world = Mock(World)
