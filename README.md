@@ -1,7 +1,9 @@
 #Slideshow#
 
-Bukkit plugin to create and run slideshows of your world.  Cycle through a list of teleport locations with
-scenic views of your world.  The player using this must be able to fly (since most viewing angles are in the sky).
+Bukkit plugin to create and run slideshows of your servers worlds. Cycle through a list of teleport
+locations with scenic views.
+
+The player using this must be able to fly (since most viewing angles are in the sky).
 
 ##Usage##
 
@@ -9,19 +11,23 @@ scenic views of your world.  The player using this must be able to fly (since mo
 
 * `/slides add` - add your current location (including viewing direction) to the new slideshow
 * `/slides save <name>` - save the new slideshow as <name>
-* `/slides list` - list all available slideshows
 * `/slides <name>` - run the slideshow <name>
+* `/slides` - list all available slideshows
 
 ###Console Commands###
 
 * `slides` - list all available slideshows
+
+##Permissions##
+
+Must have the `slideshow.basic` permission.  Separate permissions for add/save/run/list coming.
 
 ##Config##
 
 slideshows are saved into `plugins/Slideshow/config.yml` directory.  Example config file which has
 4 slides in the slideshow named 'scenic':
 
-    slides:
+    slideshows:
       scenic:
         slides:
         - world: world
@@ -50,6 +56,4 @@ slideshows are saved into `plugins/Slideshow/config.yml` directory.  Example con
           yaw: 171.44945
           pitch: -1.6499997
 
-Each location is of the form:
-
-    - worldname,xcoord,ycoord,zcoord,yaw,pitch
+[Mod page on Bukkit Dev](http://dev.bukkit.org/server-mods/slideshow/)

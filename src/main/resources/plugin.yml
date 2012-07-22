@@ -16,7 +16,8 @@ permissions:
   slideshow.*:
     default: op
     children:
-      slideshow.create: true
+      slideshow.add: true
+      slideshow.save: true
       slideshow.run: true
       slideshow.list: true
 
