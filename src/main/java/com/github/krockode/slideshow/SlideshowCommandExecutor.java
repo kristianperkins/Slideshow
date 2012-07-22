@@ -32,7 +32,7 @@ public class SlideshowCommandExecutor implements CommandExecutor {
 
     SlideshowCommandExecutor(Plugin plugin) {
         this.plugin = plugin;
-        ConfigurationSection config = plugin.getConfig().getConfigurationSection("slides");
+        ConfigurationSection config = plugin.getConfig().getConfigurationSection("slideshows");
         for (String slideName : config.getKeys(false)) {
             ConfigurationSection slideConfig = config.getConfigurationSection(slideName);
             SlideDeck slide = new SlideDeck(slideConfig.getMapList("slides"), plugin.getServer());
@@ -89,9 +89,9 @@ public class SlideshowCommandExecutor implements CommandExecutor {
             player.sendMessage(ChatColor.RED + slideDeck + " no slideshow being edited.");
         } else {
             List<Map<String, Object>> deckString = editingSlides.toListOfMaps();
-            ConfigurationSection slidesConfig = plugin.getConfig().getConfigurationSection("slides");
+            ConfigurationSection slidesConfig = plugin.getConfig().getConfigurationSection("slideshows");
             ConfigurationSection deckConfig = slidesConfig.createSection(slideDeck);
-            deckConfig.set("locations", deckString);
+            deckConfig.set("slides", deckString);
             decks.put(slideDeck, editingSlides);
             editingSlides = null;
             plugin.saveConfig();
