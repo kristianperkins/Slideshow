@@ -21,7 +21,7 @@ import com.github.krockode.slideshow.slides.SlideDeck;
 
 public class SlideshowCommandExecutor implements CommandExecutor {
 
-    private static final Logger log = Logger.getLogger("Minecraft");
+    private final Logger log;
 
     // 20 server ticks per second
     private static final int ONE_SECOND_PERIOD = 20;
@@ -32,10 +32,11 @@ public class SlideshowCommandExecutor implements CommandExecutor {
 
     SlideshowCommandExecutor(Plugin plugin) {
         this.plugin = plugin;
+        log = plugin.getLogger();
         ConfigurationSection config = plugin.getConfig().getConfigurationSection("slideshows");
         for (String slideName : config.getKeys(false)) {
             ConfigurationSection slideConfig = config.getConfigurationSection(slideName);
-            SlideDeck slide = new SlideDeck(slideConfig.getMapList("slides"), plugin.getServer());
+            SlideDeck slide = new SlideDeck(slideConfig.getMapList("slides"), plugin);
             decks.put(slideName, slide);
             log.info("added slideshow " + slideName + " with " + decks.size() + "  slides");
         }
@@ -135,6 +136,7 @@ public class SlideshowCommandExecutor implements CommandExecutor {
                 log.finest("player at: " + player.getLocation());
                 log.finest("teleporting to: " + next);
                 player.teleport(next.getLocation());
+                player.setFlying(true);  // TODO: this seems to be needed when tp between worlds in 1.3.1
                 if (next.getMessage() != null) {
                     player.sendMessage(ChatColor.GOLD + next.getMessage());
                 }

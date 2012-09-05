@@ -1,5 +1,6 @@
 package com.github.krockode.slideshow
 
+import java.util.logging.Logger
 import spock.lang.Specification
 
 import org.bukkit.ChatColor
@@ -25,6 +26,7 @@ class SlideshowCommandExecutorTest extends Specification {
         slidesConfig.getMapList("slides") >> [[world: "world", x: -250d, y: 80d, z: 25d, yaw: 120d, pitch: 40d]]
         plugin.config >> fileConfig
         plugin.server >> Mock(Server)
+        plugin.logger >> Logger.getLogger('test')
         def world = Mock(World)
         world.name >> "Vulcan"
         plugin.server.world >> world

@@ -9,10 +9,9 @@ import java.util.logging.Logger;
 import org.bukkit.Location;
 import org.bukkit.Server;
 import org.bukkit.World;
+import org.bukkit.plugin.Plugin;
 
 public class SlideDeck implements Iterable<Slide> {
-
-    private static final Logger log = Logger.getLogger("Minecraft");
 
     private List<Slide> slides = new ArrayList<Slide>();
 
@@ -24,10 +23,11 @@ public class SlideDeck implements Iterable<Slide> {
     /**
      * Loads a SlideDeck from a list of Strings
      */
-    public SlideDeck(List<Map<?, ?>> deckConfig, Server server) {
+    public SlideDeck(List<Map<?, ?>> deckConfig, Plugin plugin) {
+        Logger log = plugin.getLogger();
         log.finest("the locations: " + deckConfig);
         for (Map<?, ?> config : deckConfig) {
-            Slide slide = toSlide(config, server);
+            Slide slide = toSlide(config, plugin.getServer());
             slides.add(slide);
             log.finest("adding slide: " + slide);
         }
