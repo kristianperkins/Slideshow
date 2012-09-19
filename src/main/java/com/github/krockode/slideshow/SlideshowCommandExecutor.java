@@ -18,7 +18,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.plugin.Plugin;
 
@@ -36,7 +35,7 @@ public class SlideshowCommandExecutor implements CommandExecutor, Listener {
     private Map<String, SlideDeck> decks = new HashMap<String, SlideDeck>();
     private SlideDeck editingSlides;
     private final Map<String, Location> slideUserLocations = new HashMap<String, Location>();
-    private final boolean disableMovement;
+    private boolean disableMovement;
 
     SlideshowCommandExecutor(Plugin plugin) {
         this.plugin = plugin;
@@ -68,6 +67,9 @@ public class SlideshowCommandExecutor implements CommandExecutor, Listener {
             } else {
                 list(sender);
             }
+        } else if (args.length > 0 && args[0].equals("move")) {
+            disableMovement = ! disableMovement;
+            sender.sendMessage("movement is " + (disableMovement ? "disabled" : "enabled") + " for slideshows");
         } else {
             list(sender);
         }
@@ -164,11 +166,6 @@ public class SlideshowCommandExecutor implements CommandExecutor, Listener {
         private boolean hasMoved(Player player) {
             return previous != null && previous.getLocation().distance(player.getLocation()) > 1;
         }
-    }
-
-    @EventHandler(ignoreCancelled = true)
-    public void onPlayerInteract(final PlayerInteractEvent event) {
-        System.out.println("intedract anon class!");
     }
 
     @EventHandler
