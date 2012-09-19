@@ -8,18 +8,24 @@ import java.util.logging.Logger;
 
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.plugin.Plugin;
 
 import com.github.krockode.slideshow.slides.Slide;
 import com.github.krockode.slideshow.slides.SlideDeck;
 
-public class SlideshowCommandExecutor implements CommandExecutor {
+public class SlideshowCommandExecutor implements CommandExecutor, Listener {
 
     private final Logger log;
 
@@ -29,13 +35,17 @@ public class SlideshowCommandExecutor implements CommandExecutor {
     private Plugin plugin;
     private Map<String, SlideDeck> decks = new HashMap<String, SlideDeck>();
     private SlideDeck editingSlides;
+    private final Map<String, Location> slideUserLocations = new HashMap<String, Location>();
+    private final boolean disableMovement;
 
     SlideshowCommandExecutor(Plugin plugin) {
         this.plugin = plugin;
         log = plugin.getLogger();
-        ConfigurationSection config = plugin.getConfig().getConfigurationSection("slideshows");
-        for (String slideName : config.getKeys(false)) {
-            ConfigurationSection slideConfig = config.getConfigurationSection(slideName);
+        FileConfiguration config = plugin.getConfig();
+        disableMovement = config.getBoolean("disable_movement");
+        ConfigurationSection slideshowConfig = config.getConfigurationSection("slideshows");
+        for (String slideName : slideshowConfig.getKeys(false)) {
+            ConfigurationSection slideConfig = slideshowConfig.getConfigurationSection(slideName);
             SlideDeck slide = new SlideDeck(slideConfig.getMapList("slides"), plugin);
             decks.put(slideName, slide);
             log.info("added slideshow " + slideName + " with " + decks.size() + "  slides");
@@ -106,6 +116,7 @@ public class SlideshowCommandExecutor implements CommandExecutor {
             player.sendMessage(ChatColor.YELLOW + "Starting slideshow " + slideDeckName);
             log.info("Player " + player.getDisplayName() + " started slideshow " + slideDeckName);
             player.getServer().getScheduler().scheduleSyncDelayedTask(plugin, task, ONE_SECOND_PERIOD);
+            slideUserLocations.put(player.getName(), player.getLocation());
         } else {
             player.sendMessage(ChatColor.RED + "Cannot run slideshow " + slideDeckName);
         }
@@ -131,25 +142,44 @@ public class SlideshowCommandExecutor implements CommandExecutor {
             log.finest("isOnline: " + player.isOnline());
             log.finest("flight: " + player.getAllowFlight());
             if (player.isOnline() && player.getAllowFlight() && !hasMoved(player)) {
-                player.setFlying(true);
                 Slide next = slides.next();
                 log.finest("player at: " + player.getLocation());
                 log.finest("teleporting to: " + next);
                 player.teleport(next.getLocation());
-                player.setFlying(true);  // TODO: this seems to be needed when tp between worlds in 1.3.1
+                // XXX: when tp between worlds in 1.3.1 need to turn flying back on
+                player.setFlying(true);
                 if (next.getMessage() != null) {
                     player.sendMessage(ChatColor.GOLD + next.getMessage());
                 }
+                slideUserLocations.put(player.getName(), next.getLocation());
                 previous = next;
                 player.getServer().getScheduler().scheduleSyncDelayedTask(plugin, this, ONE_MINUTE_PERIOD / 6);
             } else {
                 player.sendMessage(ChatColor.YELLOW + "Slideshow cancelled.");
+                slideUserLocations.remove(player.getName());
                 return;
             }
         }
 
         private boolean hasMoved(Player player) {
             return previous != null && previous.getLocation().distance(player.getLocation()) > 1;
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onPlayerInteract(final PlayerInteractEvent event) {
+        System.out.println("intedract anon class!");
+    }
+
+    @EventHandler
+    public void onPlayerMove(PlayerMoveEvent event) {
+        Player p = event.getPlayer();
+        if (disableMovement && slideUserLocations.containsKey(p.getName())) {
+            Location requiredLocation = slideUserLocations.get(p.getName());
+            if (requiredLocation.distance(event.getTo()) > 1) {
+                p.teleport(requiredLocation);
+
+            }
         }
     }
 }
