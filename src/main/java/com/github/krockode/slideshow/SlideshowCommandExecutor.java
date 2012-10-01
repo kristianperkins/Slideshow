@@ -136,6 +136,7 @@ public class SlideshowCommandExecutor implements CommandExecutor, Listener {
         private Player player;
         private Iterator<Slide> slides;
         private Slide previous;
+        private boolean disallowFlyingOnCancel;
 
         public SlideshowRunner(Player player, Iterator<Slide> slides) {
             this.player = player;
@@ -161,6 +162,9 @@ public class SlideshowCommandExecutor implements CommandExecutor, Listener {
             } else {
                 player.sendMessage(ChatColor.YELLOW + "Slideshow cancelled.");
                 slideUserLocations.remove(player.getName());
+                if (disallowFlyingOnCancel) {
+                    player.setAllowFlight(false);
+                }
                 return;
             }
         }
@@ -168,6 +172,7 @@ public class SlideshowCommandExecutor implements CommandExecutor, Listener {
         private boolean allowFlying(Player player) {
             if (overrideFlyingAllowed && !player.getAllowFlight()) {
                 player.setAllowFlight(true);
+                disallowFlyingOnCancel = true;
             }
             return player.getAllowFlight();
         }
