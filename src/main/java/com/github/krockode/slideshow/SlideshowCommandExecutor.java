@@ -36,12 +36,14 @@ public class SlideshowCommandExecutor implements CommandExecutor, Listener {
     private SlideDeck editingSlides;
     private final Map<String, Location> slideUserLocations = new HashMap<String, Location>();
     private boolean disableMovement;
+    private boolean overrideFlyingAllowed;
 
     SlideshowCommandExecutor(Plugin plugin) {
         this.plugin = plugin;
         log = plugin.getLogger();
         FileConfiguration config = plugin.getConfig();
         disableMovement = config.getBoolean("disable_movement");
+        overrideFlyingAllowed = config.getBoolean("override_flying_allowed");
         ConfigurationSection slideshowConfig = config.getConfigurationSection("slideshows");
         for (String slideName : slideshowConfig.getKeys(false)) {
             ConfigurationSection slideConfig = slideshowConfig.getConfigurationSection(slideName);
@@ -68,7 +70,7 @@ public class SlideshowCommandExecutor implements CommandExecutor, Listener {
                 list(sender);
             }
         } else if (args.length > 0 && args[0].equals("move")) {
-            disableMovement = ! disableMovement;
+            disableMovement = !disableMovement;
             sender.sendMessage("movement is " + (disableMovement ? "disabled" : "enabled") + " for slideshows");
         } else {
             list(sender);
@@ -143,7 +145,7 @@ public class SlideshowCommandExecutor implements CommandExecutor, Listener {
         public void run() {
             log.finest("isOnline: " + player.isOnline());
             log.finest("flight: " + player.getAllowFlight());
-            if (player.isOnline() && player.getAllowFlight() && !hasMoved(player)) {
+            if (player.isOnline() && allowFlying(player) && !hasMoved(player)) {
                 Slide next = slides.next();
                 log.finest("player at: " + player.getLocation());
                 log.finest("teleporting to: " + next);
@@ -163,7 +165,17 @@ public class SlideshowCommandExecutor implements CommandExecutor, Listener {
             }
         }
 
+        private boolean allowFlying(Player player) {
+            if (overrideFlyingAllowed && !player.getAllowFlight()) {
+                player.setAllowFlight(true);
+            }
+            return player.getAllowFlight();
+        }
+
         private boolean hasMoved(Player player) {
+            if (disableMovement) {
+                return false;
+            }
             return previous != null && previous.getLocation().distance(player.getLocation()) > 1;
         }
     }
